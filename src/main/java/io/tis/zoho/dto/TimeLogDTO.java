@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class TimeLogDTO {
+    private String clientName;
     private String projectName;
     private String jobName;
     private String workItem;

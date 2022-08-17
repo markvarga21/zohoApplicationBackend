@@ -19,6 +19,11 @@
 <body>
 <div class="form-group" align="center">
     <form action="#" th:action="@{/add}" method="post" th:object="${timelog}">
+        <label>Client name:</label>
+        <div th:each="client: ${listClient}">
+            <input type="radio" th:field="*{clientName}" th:value="${client}">
+            <label class="radio-inline" th:for="${#ids.prev('clientName')}" th:text="${client}"></label>
+        </div>
 
         <label>Project name:</label>
         <div th:each="project: ${listProject}">

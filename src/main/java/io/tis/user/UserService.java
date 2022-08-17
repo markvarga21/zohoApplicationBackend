@@ -1,5 +1,6 @@
 package io.tis.user;
 
+import io.tis.zoho.ZohoService;
 import io.tis.zoho.dto.TimeLogDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import java.util.List;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final ZohoService zohoService;
 
     public boolean checkUserRefreshToken() {
         return !this.userRepository.findAll().isEmpty();
@@ -26,6 +28,10 @@ public class UserService {
         user.setEmail("john@gmail.com");
         user.setRefreshToken(refreshToken);
         this.userRepository.save(user);
+    }
+
+    private String getUserRefreshToken() {
+        return "refreshtoken";
     }
 
     public List<String> getProjects() {
@@ -50,5 +56,9 @@ public class UserService {
         } else {
             log.info("Only one time log to add");
         }
+    }
+
+    public List<String> getClients() {
+        return this.zohoService.getClients(this.getUserRefreshToken());
     }
 }

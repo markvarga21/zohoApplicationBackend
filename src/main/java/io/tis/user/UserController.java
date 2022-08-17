@@ -52,6 +52,8 @@ public class UserController {
         var jobNames = this.userService.getJobs();
         model.addAttribute("listProject", projectNames);
         model.addAttribute("listJob", jobNames);
+        var clientNames = this.userService.getClients();
+        model.addAttribute("listClient", clientNames);
         return new ModelAndView("register_time_log");
     }
 
@@ -65,5 +67,10 @@ public class UserController {
     @GetMapping("/users")
     public List<User> getUsers() {
         return this.userService.getAllUsers();
+    }
+
+    @GetMapping("/getclients")
+    public void getClients() {
+        this.zohoService.getClients("asd");
     }
 }
