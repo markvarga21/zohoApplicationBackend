@@ -2,6 +2,7 @@ package io.tis.user;
 
 import io.tis.zoho.TimeLog;
 import io.tis.zoho.ZohoService;
+import io.tis.zoho.dto.TimeLogDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,7 @@ public class UserController {
 
     @GetMapping("/add")
     public ModelAndView showStandardForm(Model model) {
-        TimeLog timeLog = new TimeLog();
+        TimeLogDTO timeLog = new TimeLogDTO();
         model.addAttribute("timelog", timeLog);
         var projectNames = this.userService.getProjects();
         var jobNames = this.userService.getJobs();
@@ -55,7 +56,8 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ModelAndView submitForm(@ModelAttribute("log") TimeLog timeLog) {
+    public ModelAndView submitForm(@ModelAttribute("log") TimeLogDTO timeLog) {
+        this.userService.addTimeLog(timeLog);
         System.out.println(timeLog);
         return new ModelAndView("register_success");
     }

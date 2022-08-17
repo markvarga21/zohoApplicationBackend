@@ -18,7 +18,9 @@
   <span>Job name:</span><span th:text="${log.jobName}"></span><br/>
   <span>Work item:</span><span th:text="${log.workItem}"></span><br/>
   <span>Description:</span><span th:text="${log.description}"></span><br/>
-  <span>Work time:</span><span th:text="${log.workTime}"></span><br/>
+  <span>Work time:</span><span th:text="${log.getWorkDate}"></span><br/>
+  <span>From time:</span><span th:text="${log.getFromTime}"></span><br/>
+  <span>To time:</span><span th:text="${log.getToTime}"></span><br/>
   <span>Billable?</span><span th:text="${log.billable}"></span><br/>
 </div>
 </body>

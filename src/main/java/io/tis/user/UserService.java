@@ -1,12 +1,15 @@
 package io.tis.user;
 
+import io.tis.zoho.dto.TimeLogDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
 
@@ -38,5 +41,14 @@ public class UserService {
         user.setEmail("john@gmail.com");
         user.setRefreshToken("100.blablabla");
         this.userRepository.save(user);
+    }
+
+    public void addTimeLog(TimeLogDTO timeLog) {
+        String[] workDates = timeLog.getWorkDate().split(",");
+        if (workDates.length > 1) {
+            log.info("More than one time log add");
+        } else {
+            log.info("Only one time log to add");
+        }
     }
 }

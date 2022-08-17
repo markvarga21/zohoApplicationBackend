@@ -1,12 +1,9 @@
-package io.tis.zoho;
+package io.tis.zoho.dto;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-public class TimeLog {
-    private String userEmail;
+public class TimeLogDTO {
     private String projectName;
     private String jobName;
     private String workItem;
