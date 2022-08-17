@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New time log</title>
+    <link th:rel="stylesheet" th:href="@{webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+</head>
+<body>
+<div class="form-group">
+  <form action="#" th:action="@{/add}" method="post" th:object="${timelog}">
+
+    <label>Project name:</label>
+    <div th:each="project: ${listProject}">
+<!--        <div class="form-check form-check-inline">-->
+<!--            <input type="radio" class="btn-check" th:field="*{projectName}" th:value="${project}">-->
+<!--            <label class="btn btn-secondary" th:for="${#ids.prev('projectName')}" th:text="${project}"></label>-->
+<!--        </div>-->
+        <input type="checkbox" class="btn-check" id="btn-check-outlined" autocomplete="off">
+        <label class="btn btn-outline-primary" for="btn-check-outlined">Single toggle</label><br>
+    </div>
+
+    <label>Job name:</label>
+    <select th:field="*{jobName}">
+      <option th:each="p : ${listJob}" th:value="${p}" th:text="${p}" />
+    </select>
+    <br/>
+
+    <label>Work item:</label>
+    <input type="text" th:field="*{workItem}" /><br/>
+
+    <label>Description:</label>
+    <input type="text" th:field="*{description}" /><br/>
+
+    <label>Work date (yyyy-mm-dd):</label>
+    <input type="text" th:field="*{workTime}" /><br/>
+
+    <label>Billable?</label>
+    <input type="checkbox" th:field="*{billable}" /><br/>
+
+    <button type="submit">Submit</button>
+  </form>
+</div>
+</body>
+</html>
