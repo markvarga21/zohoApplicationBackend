@@ -1,10 +1,10 @@
-package io.tis.zoho.client;
+package io.tis.zoho.job;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class Response {
+public class ZohoJobResponse {
     @JsonProperty("response")
-    private ZohoClientResponse zohoClientResponse;
+    private ZohoJobResponseList zohoJobResponseList;
 }

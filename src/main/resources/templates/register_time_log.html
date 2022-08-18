@@ -25,18 +25,18 @@
             <label class="radio-inline" th:for="${#ids.prev('clientName')}" th:text="${client}"></label>
         </div>
 
+        <label>Job name:</label>
+        <div th:each="job: ${listJob}">
+            <input type="radio" th:field="*{jobName}" th:value="${job}">
+            <label class="radio-inline" th:for="${#ids.prev('jobName')}" th:text="${job}"></label>
+        </div>
+
         <label>Project name:</label>
         <div th:each="project: ${listProject}">
             <input type="radio" th:field="*{projectName}" th:value="${project}">
             <label class="radio-inline" th:for="${#ids.prev('projectName')}" th:text="${project}"></label>
         </div>
 
-
-        <label>Job name:</label>
-        <div th:each="job: ${listJob}">
-            <input type="radio" th:field="*{jobName}" th:value="${job}">
-            <label class="radio-inline" th:for="${#ids.prev('projectName')}" th:text="${job}"></label>
-        </div>
 
         <label>Work item:</label>
         <input type="text" th:field="*{workItem}"/><br/>

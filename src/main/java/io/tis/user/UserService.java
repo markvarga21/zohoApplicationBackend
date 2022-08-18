@@ -39,7 +39,7 @@ public class UserService {
     }
 
     public List<String> getJobs() {
-        return List.of("Job1", "Job2", "Job3");
+        return this.zohoService.getJobs(this.getUserRefreshToken());
     }
 
     public void addDummyUser() {

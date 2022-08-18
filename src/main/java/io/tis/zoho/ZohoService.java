@@ -1,7 +1,9 @@
 package io.tis.zoho;
 
-import io.tis.zoho.client.Response;
+import io.tis.zoho.client.ZohoClientResponse;
 import io.tis.zoho.client.ZohoClient;
+import io.tis.zoho.job.ZohoJob;
+import io.tis.zoho.job.ZohoJobResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,33 +55,59 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.0831dde99e45010fb05e9c872ebc572d.37b49c5250b2e858a3172811a100fb44";
+        return "1000.1b6275f244944878e2eb395f2808c1e5.9e95829bae62b5852ce4077431c7c788";
+    }
+
+    private HttpEntity<?> generateRequestEntity(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Zoho-oauthtoken " + accessToken);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        return entity;
+    }
+
+    private String generateRequestUrl(String path) {
+        return this.zohoPeopleBaseUrl + path;
     }
 
     public List<String> getClients(String refreshToken) {
+        String accessToken = this.generateAccessToken(refreshToken);
+        var requestEntity = this.generateRequestEntity(accessToken);
+        String requestUrl = generateRequestUrl("/getclients");
+
         RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Zoho-oauthtoken " + this.generateAccessToken(refreshToken));
-
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-
-
-        String requestUrl = this.zohoPeopleBaseUrl + "/people/api/timetracker/getclients";
-        System.out.println(requestUrl);
         var clients = restTemplate.exchange(
                 requestUrl,
                 HttpMethod.GET,
-                entity,
-                Response.class
+                requestEntity,
+                ZohoClientResponse.class
         );
         return clients
                 .getBody()
-                .getZohoClientResponse()
+                .getZohoClientResponseList()
                 .getResult()
                 .stream()
                 .map(ZohoClient::getClientName)
                 .toList();
     }
 
+    public List<String> getJobs(String userRefreshToken) {
+        String accessToken = this.generateAccessToken(userRefreshToken);
+        var requestEntity = this.generateRequestEntity(accessToken);
+        String requestUrl = generateRequestUrl("/getjobs");
+
+        RestTemplate restTemplate = new RestTemplate();
+        var jobs = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                requestEntity,
+                ZohoJobResponse.class
+        );
+        return jobs
+                .getBody()
+                .getZohoJobResponseList()
+                .getResult()
+                .stream()
+                .map(ZohoJob::getJobName)
+                .toList();
+    }
 }

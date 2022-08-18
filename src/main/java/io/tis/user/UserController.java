@@ -1,17 +1,13 @@
 package io.tis.user;
 
-import io.tis.zoho.TimeLog;
 import io.tis.zoho.ZohoService;
 import io.tis.zoho.dto.TimeLogDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -25,7 +21,6 @@ public class UserController {
         log.info(code);
         String refreshToken = this.zohoService.generateRefreshToken(code);
         this.userService.assignRefreshToken(refreshToken);
-        String message = "Refresh token generated successfully!";
         return new ModelAndView("standard_login");
     }
 
@@ -62,15 +57,5 @@ public class UserController {
         this.userService.addTimeLog(timeLog);
         System.out.println(timeLog);
         return new ModelAndView("register_success");
-    }
-
-    @GetMapping("/users")
-    public List<User> getUsers() {
-        return this.userService.getAllUsers();
-    }
-
-    @GetMapping("/getclients")
-    public void getClients() {
-        this.zohoService.getClients("asd");
     }
 }
