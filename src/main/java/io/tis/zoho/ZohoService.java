@@ -2,11 +2,14 @@ package io.tis.zoho;
 
 import io.tis.zoho.client.ZohoClientResponse;
 import io.tis.zoho.client.ZohoClient;
+import io.tis.zoho.dto.TimeLogDTO;
 import io.tis.zoho.job.ZohoJob;
 import io.tis.zoho.job.ZohoJobResponse;
 import io.tis.zoho.project.ZohoProject;
 import io.tis.zoho.project.ZohoProjectResponse;
+import io.tis.zoho.timelog.DateTimeConverter;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -18,13 +21,18 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Getter
 @Slf4j
+@RequiredArgsConstructor
 public class ZohoService {
+    private final DateTimeConverter dateTimeConverter;
     @Value("${zoho.client.id}")
     private String clientId;
     @Value("${zoho.client.secret}")
@@ -35,6 +43,8 @@ public class ZohoService {
     private String zohoBaseUrl;
     @Value("${base.zoho.people.url}")
     private String zohoPeopleBaseUrl;
+    @Value("${user.email}")
+    private String userEmail;
 
     public String generateRefreshToken(String code) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -57,7 +67,7 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.1b6275f244944878e2eb395f2808c1e5.9e95829bae62b5852ce4077431c7c788";
+        return "1000.e08455e678257214c5cbc7b24976e4e1.ddaa20ceb2cfd471bfc4c281b3e29b38";
     }
 
     private HttpEntity<?> generateRequestEntity(String accessToken) {
@@ -132,5 +142,31 @@ public class ZohoService {
                 .stream()
                 .map(ZohoProject::getProjectName)
                 .toList();
+    }
+
+    public void addNewTimeLog(TimeLogDTO timeLogDTO, String userRefreshToken) {
+        String accessToken = this.generateAccessToken(userRefreshToken);
+        var requestEntity = this.generateRequestEntity(accessToken);
+        String requestUrl = generateRequestUrl("/addtimelog");
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl)
+        .queryParam("user", this.userEmail)
+        .queryParam("projectName", timeLogDTO.getProjectName())
+        .queryParam("jobName", timeLogDTO.getJobName())
+        .queryParam("workDate", this.dateTimeConverter.convertDatePickerFormatToStandard(timeLogDTO.getWorkDate()))
+        .queryParam("billingStatus", timeLogDTO.isBillable() ? "billable" : "non-billable")
+        .queryParam("fromTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getFromTime()))
+        .queryParam("toTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getToTime()))
+        .queryParam("workItem", timeLogDTO.getWorkItem())
+        .queryParam("description", timeLogDTO.getDescription());
+
+        RestTemplate restTemplate = new RestTemplate();
+        var statusCode = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        ).getStatusCode();
+        log.info("Adding new time log was: {}", statusCode);
     }
 }

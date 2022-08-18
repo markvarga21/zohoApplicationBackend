@@ -1,4 +1,4 @@
-package io.tis.zoho;
+package io.tis.zoho.timelog;
 
 import lombok.Data;
 
