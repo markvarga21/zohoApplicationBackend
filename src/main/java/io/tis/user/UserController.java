@@ -55,7 +55,8 @@ public class UserController {
     @PostMapping("/add")
     public ModelAndView submitForm(@ModelAttribute("log") TimeLogDTO timeLog) {
         String refreshToken = this.userService.getUserRefreshToken();
-        this.zohoService.addNewTimeLog(timeLog, refreshToken);
+//        To be removed
+//        this.zohoService.addNewTimeLog(timeLog, refreshToken);
         System.out.println(timeLog);
         return new ModelAndView("register_success");
     }
