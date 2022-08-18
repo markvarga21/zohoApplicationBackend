@@ -19,10 +19,6 @@ public class UserService {
         return !this.userRepository.findAll().isEmpty();
     }
 
-    public List<User> getAllUsers() {
-        return this.userRepository.findAll();
-    }
-
     public void assignRefreshToken(String refreshToken) {
         User user = new User();
         user.setEmail("john@gmail.com");
@@ -35,7 +31,7 @@ public class UserService {
     }
 
     public List<String> getProjects() {
-        return List.of("Project1", "Project2");
+        return this.zohoService.getProjects(this.getUserRefreshToken());
     }
 
     public List<String> getJobs() {

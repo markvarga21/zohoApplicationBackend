@@ -4,6 +4,8 @@ import io.tis.zoho.client.ZohoClientResponse;
 import io.tis.zoho.client.ZohoClient;
 import io.tis.zoho.job.ZohoJob;
 import io.tis.zoho.job.ZohoJobResponse;
+import io.tis.zoho.project.ZohoProject;
+import io.tis.zoho.project.ZohoProjectResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,6 +110,27 @@ public class ZohoService {
                 .getResult()
                 .stream()
                 .map(ZohoJob::getJobName)
+                .toList();
+    }
+
+    public List<String> getProjects(String userRefreshToken) {
+        String accessToken = this.generateAccessToken(userRefreshToken);
+        var requestEntity = this.generateRequestEntity(accessToken);
+        String requestUrl = generateRequestUrl("/getprojects");
+
+        RestTemplate restTemplate = new RestTemplate();
+        var projects = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                requestEntity,
+                ZohoProjectResponse.class
+        );
+        return projects
+                .getBody()
+                .getZohoProjectResponseList()
+                .getResult()
+                .stream()
+                .map(ZohoProject::getProjectName)
                 .toList();
     }
 }
