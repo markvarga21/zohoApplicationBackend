@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -60,4 +62,16 @@ public class UserController {
         System.out.println(timeLog);
         return new ModelAndView("register_success");
     }
+
+    @GetMapping("/jobs")
+    public List<String> getJobForClient(@RequestParam("clientName") String clientName) {
+        String refreshToken = this.userService.getUserRefreshToken();
+        return this.zohoService.getJobsForClient(clientName, refreshToken);
+    }
+
+    @GetMapping("/dummy")
+    public String getDummy() {
+        return "Dummy hello";
+    }
+
 }

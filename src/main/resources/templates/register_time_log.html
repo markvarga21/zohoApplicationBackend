@@ -23,7 +23,7 @@
         <label>Client name:</label>
         <div class="btn-group">
             <div th:each="client: ${listClient}">
-                <input type="radio" class="btn-check" autocomplete="off" th:field="*{clientName}" th:value="${client}">
+                <input type="radio" class="btn-check clientRadioInput" autocomplete="off" th:field="*{clientName}" th:value="${client}">
                 <label class="btn btn-outline-primary" th:for="${#ids.prev('clientName')}" th:text="${client}"></label>
             </div>
         </div>
@@ -89,11 +89,44 @@
         <label>Billable?</label>
         <input type="checkbox" th:field="*{billable}"/><br/>
         <br>
+
+        <label id="probaOutput">Nothing</label>
+
         <button type="submit">Submit</button>
     </form>
 </div>
 <!-- Script -->
-<script type="text/javascript">
+<script>
+    function getSelectedClient() {
+        let clientButtons = document.getElementsByClassName('clientRadioInput');
+        for (let i = 0; i < clientButtons.length; i++) {
+            let btn = clientButtons.item(i);
+            btn.addEventListener('click', () => {
+                if (btn.checked) {
+                    refreshJobLabels(btn.value);
+                }
+            });
+        }
+    }
+
+    function getJobs(clientName)
+    {
+        let baseUrl = 'http://localhost:8080/jobs/';
+        let query = '?clientName='.concat(clientName);
+        let requestUrl = baseUrl.concat(query);
+        const xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", requestUrl, false ); // false for synchronous request
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+    }
+
+    function refreshJobLabels(clientName) {
+        let clientJobs = getJobs(clientName);
+
+    }
+
+    getSelectedClient();
+
 <!--    Working v1 -->
     $(function () {
         $('#datepicker').datepicker({

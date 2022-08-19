@@ -1,5 +1,6 @@
 package io.tis.zoho;
 
+import io.tis.exception.ClientNotFound;
 import io.tis.zoho.client.ZohoClientResponse;
 import io.tis.zoho.client.ZohoClient;
 import io.tis.zoho.dto.TimeLogDTO;
@@ -67,7 +68,7 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.637a11aff4e605cfc3ec2d87ab33e48e.35c5de2e3d7a75c24ab610a5a3dd8daa";
+        return "1000.0e4bb61794dffe240b3d29b6e66f4bb9.c465ac41d229b01443e9d93ae5a0956c";
     }
 
     private HttpEntity<?> generateRequestEntity(String accessToken) {
@@ -83,6 +84,12 @@ public class ZohoService {
 
     public List<String> getClients(String refreshToken) {
         String accessToken = this.generateAccessToken(refreshToken);
+        return this.getAllClientInformation(accessToken)
+                .stream()
+                .map(ZohoClient::getClientName)
+                .toList();
+    }
+    private List<ZohoClient> getAllClientInformation(String accessToken) {
         var requestEntity = this.generateRequestEntity(accessToken);
         String requestUrl = generateRequestUrl("/getclients");
 
@@ -96,16 +103,18 @@ public class ZohoService {
         return clients
                 .getBody()
                 .getZohoClientResponseList()
-                .getResult()
-                .stream()
-                .map(ZohoClient::getClientName)
-                .toList();
+                .getResult();
     }
-
     public List<String> getJobs(String userRefreshToken) {
         String accessToken = this.generateAccessToken(userRefreshToken);
-        var requestEntity = this.generateRequestEntity(accessToken);
+        return this.getAllJobInformation(accessToken)
+                .stream()
+                .map(ZohoJob::getJobName)
+                .toList();
+    }
+    private List<ZohoJob> getAllJobInformation(String accessToken) {
         String requestUrl = generateRequestUrl("/getjobs");
+        var requestEntity = this.generateRequestEntity(accessToken);
 
         RestTemplate restTemplate = new RestTemplate();
         var jobs = restTemplate.exchange(
@@ -117,14 +126,18 @@ public class ZohoService {
         return jobs
                 .getBody()
                 .getZohoJobResponseList()
-                .getResult()
-                .stream()
-                .map(ZohoJob::getJobName)
-                .toList();
+                .getResult();
     }
 
     public List<String> getProjects(String userRefreshToken) {
         String accessToken = this.generateAccessToken(userRefreshToken);
+        return this.getAllProjectInformation(accessToken)
+                .stream()
+                .map(ZohoProject::getProjectName)
+                .toList();
+    }
+
+    private List<ZohoProject> getAllProjectInformation(String accessToken) {
         var requestEntity = this.generateRequestEntity(accessToken);
         String requestUrl = generateRequestUrl("/getprojects");
 
@@ -138,13 +151,11 @@ public class ZohoService {
         return projects
                 .getBody()
                 .getZohoProjectResponseList()
-                .getResult()
-                .stream()
-                .map(ZohoProject::getProjectName)
-                .toList();
+                .getResult();
     }
 
     public void addNewTimeLog(TimeLogDTO timeLogDTO, String userRefreshToken) {
+//        WHen adding job and project with whitespace it adds another one with a %20, correct it TODO
         String accessToken = this.generateAccessToken(userRefreshToken);
         var requestEntity = this.generateRequestEntity(accessToken);
         String requestUrl = generateRequestUrl("/addtimelog");
@@ -168,5 +179,28 @@ public class ZohoService {
                 String.class
         ).getStatusCode();
         log.info("Adding new time log was: {}", statusCode);
+    }
+
+    public List<String> getJobsForClient(String clientName, String refreshToken) {
+        String accessToken = this.generateAccessToken(refreshToken);
+        String clientId = this.findIdForClient(clientName, accessToken);
+        return this.getAllJobInformation(accessToken)
+                .stream()
+                .filter(zohoJob -> zohoJob.getClientId().equals(clientId))
+                .map(ZohoJob::getJobName)
+                .toList();
+    }
+
+    private String findIdForClient(String clientName, String accessToken) {
+        var clientOptional = this.getAllClientInformation(accessToken)
+                .stream()
+                .filter(zohoClient -> zohoClient.getClientName().equals(clientName))
+                .map(ZohoClient::getClientId)
+                .findFirst();
+        if (clientOptional.isEmpty()) {
+            String message = String.format("Client not found with name: %s", clientName);
+            throw new ClientNotFound(message);
+        }
+        return clientOptional.get();
     }
 }
