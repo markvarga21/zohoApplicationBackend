@@ -33,8 +33,8 @@
         <label>Job name:</label>
         <div class="btn-group" role="group">
             <div th:each="job: ${listJob}">
-                <input type="radio" class="btn-check" autocomplete="off" th:field="*{jobName}" th:value="${job}">
-                <label class="btn btn-outline-primary" th:for="${#ids.prev('jobName')}" th:text="${job}"></label>
+                <input type="radio" class="btn-check jobRadioInput" autocomplete="off" th:field="*{jobName}" th:value="${job}">
+                <label class="btn btn-outline-primary jobLabel" th:for="${#ids.prev('jobName')}" th:text="${job}"></label>
             </div>
         </div>
 
@@ -121,8 +121,23 @@
     }
 
     function refreshJobLabels(clientName) {
-        let clientJobs = getJobs(clientName);
+        let clientJobsString = getJobs(clientName);
+        let clientJobs = clientJobsString.substring(1, clientJobsString.length-1).replaceAll("\"", "").split(",");
+        let jobButtons = document.getElementsByClassName('jobRadioInput');
+        let jobLabel = document.getElementsByClassName('jobLabel');
+        // refresh from the first and delete the others
+        let index = 0;
+        for (let i = 0; i < jobButtons.length; i++) {
+            if (index > clientJobs.length) {
+                jobButtons.item(i).remove();
+                jobLabel.item(i).remove();
+            } else {
+                jobButtons.item(i).value = clientJobs.at(index);
+                jobLabel.item(i).innerHTML = clientJobs.at(index);
+                index++;
+            }
 
+        }
     }
 
     getSelectedClient();

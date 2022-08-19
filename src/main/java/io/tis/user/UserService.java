@@ -41,7 +41,7 @@ public class UserService {
 
     public void addDummyUser() {
         User user = new User();
-        user.setEmail("vmark2145@gmail.com");
+        user.setEmail("coolman21458905@gmail.com");
         user.setRefreshToken("100.blablabla");
         this.userRepository.save(user);
     }
