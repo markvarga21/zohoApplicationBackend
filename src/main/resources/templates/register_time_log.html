@@ -31,7 +31,7 @@
         <br>
 
         <label>Job name:</label>
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" id="jobDiv">
             <div th:each="job: ${listJob}">
                 <input type="radio" class="btn-check jobRadioInput" autocomplete="off" th:field="*{jobName}" th:value="${job}">
                 <label class="btn btn-outline-primary jobLabel" th:for="${#ids.prev('jobName')}" th:text="${job}"></label>
@@ -129,8 +129,10 @@
         let jobLabel = document.getElementsByClassName('jobLabel');
         // refresh from the first and delete the others
         let index = 0;
+        let div = document.getElementById('jobDiv');
+        div.remove();
         for (let i = 0; i < jobButtons.length; i++) {
-            jobButtons[i].parentNode.removeChild(jobButtons[i]);
+            // jobButtons[i].parentNode.removeChild(jobButtons[i]);
             // console.log('Index inside for: ' + index);
             // if (index >= clientJobs.length) {
             //     console.log('Hiding buttons and labels');
