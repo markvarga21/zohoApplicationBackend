@@ -2,8 +2,6 @@ package io.tis.zoho.timelog;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class TimeLog {
     private String userEmail;

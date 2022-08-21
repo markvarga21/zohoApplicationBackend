@@ -32,16 +32,16 @@ public class UserService {
     }
 
     public List<String> getProjects() {
-        return this.zohoService.getProjects(this.getUserRefreshToken());
+        return this.zohoService.getProjects();
     }
 
     public List<String> getJobs() {
-        return this.zohoService.getJobs(this.getUserRefreshToken());
+        return this.zohoService.getJobs();
     }
 
     public void addDummyUser() {
         User user = new User();
-        user.setEmail("coolman21458905@gmail.com");
+        user.setEmail("vmark2145@gmail.com");
         user.setRefreshToken("100.blablabla");
         this.userRepository.save(user);
     }
@@ -56,7 +56,7 @@ public class UserService {
 //    }
 
     public List<String> getClients() {
-        return this.zohoService.getClients(this.getUserRefreshToken());
+        return this.zohoService.getClients();
     }
 
     public String getUserEmail() {

@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import javax.persistence.*;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
 public class ZohoProject {
     @JsonProperty("projectStatus")
     private String projectStatus;
@@ -21,10 +24,9 @@ public class ZohoProject {
     private Boolean isDeleteAllowed;
     @JsonProperty("projectName")
     private String projectName;
-    @JsonProperty("projectHead")
-    private ZohoProjectHead projectHead;
     @JsonProperty("ownerId")
     private String ownerId;
     @JsonProperty("projectId")
+    @Id
     private String projectId;
 }

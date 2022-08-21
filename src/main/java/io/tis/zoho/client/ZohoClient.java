@@ -4,12 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
 public class ZohoClient {
     @JsonProperty("streetAddr")
     private String streetAddr;
     @JsonProperty("clientId")
+    @Id
     private String clientId;
     @JsonProperty("clientName")
     private String clientName;

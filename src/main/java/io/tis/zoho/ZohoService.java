@@ -1,12 +1,17 @@
 package io.tis.zoho;
 
-import io.tis.exception.ClientNotFound;
+import io.tis.exception.ClientNotFoundException;
+import io.tis.exception.JobNotFoundException;
+import io.tis.exception.ProjectNotFoundException;
+import io.tis.zoho.client.ZohoClientRepository;
 import io.tis.zoho.client.ZohoClientResponse;
 import io.tis.zoho.client.ZohoClient;
 import io.tis.zoho.dto.TimeLogDTO;
 import io.tis.zoho.job.ZohoJob;
+import io.tis.zoho.job.ZohoJobRepository;
 import io.tis.zoho.job.ZohoJobResponse;
 import io.tis.zoho.project.ZohoProject;
+import io.tis.zoho.project.ZohoProjectRepository;
 import io.tis.zoho.project.ZohoProjectResponse;
 import io.tis.zoho.timelog.DateTimeConverter;
 import lombok.Getter;
@@ -24,9 +29,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Getter
@@ -34,6 +37,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ZohoService {
     private final DateTimeConverter dateTimeConverter;
+    private final ZohoClientRepository zohoClientRepository;
+    private final ZohoJobRepository zohoJobRepository;
+    private final ZohoProjectRepository zohoProjectRepository;
     @Value("${zoho.client.id}")
     private String clientId;
     @Value("${zoho.client.secret}")
@@ -68,23 +74,26 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.fec94f081706fa87057e7eec5622430a.21b6f0ccf919c9a12efc731e99c634ce";
+        return "1000.8c57d6a80c62f490b7119e7137f8df37.413edd8453e85b5e0707042b3e245a23";
     }
 
     private HttpEntity<?> generateRequestEntity(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Zoho-oauthtoken " + accessToken);
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        return entity;
+        return new HttpEntity<>(headers);
     }
 
     private String generateRequestUrl(String path) {
         return this.zohoPeopleBaseUrl + path;
     }
 
-    public List<String> getClients(String refreshToken) {
-        String accessToken = this.generateAccessToken(refreshToken);
-        return this.getAllClientInformation(accessToken)
+    public List<String> getClients() {
+        var zohoClients = this.zohoClientRepository.findAll();
+        if (zohoClients.isEmpty()) {
+            String message = "Clients not found!";
+            throw new ClientNotFoundException(message);
+        }
+        return zohoClients
                 .stream()
                 .map(ZohoClient::getClientName)
                 .toList();
@@ -105,9 +114,13 @@ public class ZohoService {
                 .getZohoClientResponseList()
                 .getResult();
     }
-    public List<String> getJobs(String userRefreshToken) {
-        String accessToken = this.generateAccessToken(userRefreshToken);
-        return this.getAllJobInformation(accessToken)
+    public List<String> getJobs() {
+        var zohoJobs = this.zohoJobRepository.findAll();
+        if (zohoJobs.isEmpty()) {
+            String message = "No job found!";
+            throw new JobNotFoundException(message);
+        }
+        return zohoJobs
                 .stream()
                 .map(ZohoJob::getJobName)
                 .toList();
@@ -129,9 +142,13 @@ public class ZohoService {
                 .getResult();
     }
 
-    public List<String> getProjects(String userRefreshToken) {
-        String accessToken = this.generateAccessToken(userRefreshToken);
-        return this.getAllProjectInformation(accessToken)
+    public List<String> getProjects() {
+        var zohoProjects = this.zohoProjectRepository.findAll();
+        if (zohoProjects.isEmpty()) {
+            String message = "No projects found!";
+            throw new ProjectNotFoundException(message);
+        }
+        return zohoProjects
                 .stream()
                 .map(ZohoProject::getProjectName)
                 .toList();
@@ -181,26 +198,27 @@ public class ZohoService {
         log.info("Adding new time log was: {}", statusCode);
     }
 
-    public List<String> getJobsForClient(String clientName, String refreshToken) {
-        String accessToken = this.generateAccessToken(refreshToken);
-        String clientId = this.findIdForClient(clientName, accessToken);
-        return this.getAllJobInformation(accessToken)
+    public List<String> getJobsForClient(String clientName) {
+        var zohoJobOptional = this.zohoJobRepository.getZohoJobsByClientName(clientName);
+        if (zohoJobOptional.isEmpty()) {
+            String message = String.format("No job(s) found for client: %s", clientName);
+            throw new JobNotFoundException(message);
+        }
+        return zohoJobOptional
+                .get()
                 .stream()
-                .filter(zohoJob -> zohoJob.getClientId().equals(clientId))
                 .map(ZohoJob::getJobName)
                 .toList();
     }
 
-    private String findIdForClient(String clientName, String accessToken) {
-        var clientOptional = this.getAllClientInformation(accessToken)
-                .stream()
-                .filter(zohoClient -> zohoClient.getClientName().equals(clientName))
-                .map(ZohoClient::getClientId)
-                .findFirst();
-        if (clientOptional.isEmpty()) {
-            String message = String.format("Client not found with name: %s", clientName);
-            throw new ClientNotFound(message);
-        }
-        return clientOptional.get();
+    public boolean isZohoDatabaseSetup() {
+        return !this.zohoClientRepository.findAll().isEmpty();
+    }
+
+    public void gatherZohoInformation(String refreshToken) {
+        String accessToken = this.generateAccessToken(refreshToken);
+        this.zohoClientRepository.saveAll(this.getAllClientInformation(accessToken));
+        this.zohoJobRepository.saveAll(this.getAllJobInformation(accessToken));
+        this.zohoProjectRepository.saveAll(this.getAllProjectInformation(accessToken));
     }
 }

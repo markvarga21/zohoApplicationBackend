@@ -34,6 +34,11 @@ public class UserController {
         var doesUserHaveRefreshToken = this.userService.checkUserRefreshToken();
         ModelAndView modelAndView = new ModelAndView();
         if (doesUserHaveRefreshToken) {
+            if (!this.zohoService.isZohoDatabaseSetup()) {
+                log.info("Zoho repository not setup, filling in...");
+                this.zohoService.gatherZohoInformation(this.userService.getUserRefreshToken());
+            }
+            log.info("Zoho repository setup, proceeding to login!");
             modelAndView.setViewName("standard_login");
         } else {
             modelAndView.setViewName("first_login");
@@ -51,6 +56,8 @@ public class UserController {
         model.addAttribute("listJob", jobNames);
         var clientNames = this.userService.getClients();
         model.addAttribute("listClient", clientNames);
+
+
         return new ModelAndView("register_time_log");
     }
 
@@ -65,13 +72,6 @@ public class UserController {
 
     @GetMapping("/jobs")
     public List<String> getJobForClient(@RequestParam("clientName") String clientName) {
-        String refreshToken = this.userService.getUserRefreshToken();
-        return this.zohoService.getJobsForClient(clientName, refreshToken);
+        return this.zohoService.getJobsForClient(clientName);
     }
-
-    @GetMapping("/dummy")
-    public String getDummy() {
-        return "Dummy hello";
-    }
-
 }
