@@ -97,18 +97,18 @@
 </div>
 <!-- Script -->
 <script>
-    function getSelectedClient() {
-        let clientButtons = document.getElementsByClassName('clientRadioInput');
-        for (let i = 0; i < clientButtons.length; i++) {
-            let btn = clientButtons.item(i);
-            btn.addEventListener('click', () => {
-                if (btn.checked) {
-                    refreshJobLabels(btn.value);
-                }
-            });
-        }
-    }
-
+    // function getSelectedClient() {
+    //     let clientButtons = document.getElementsByClassName('clientRadioInput');
+    //     for (let i = 0; i < clientButtons.length; i++) {
+    //         let btn = clientButtons.item(i);
+    //         btn.addEventListener('click', () => {
+    //             if (btn.checked) {
+    //                 refreshJobLabels(btn.value);
+    //             }
+    //         });
+    //     }
+    // }
+    //
     function getJobs(clientName)
     {
         let baseUrl = 'http://localhost:8080/jobs/';
@@ -120,38 +120,38 @@
         return xmlHttp.responseText;
     }
 
-    function refreshJobLabels(clientName) {
-        let clientJobsString = getJobs(clientName);
-        console.log(clientName + ' jobs string from our API: ' + clientJobsString);
-        let clientJobs = clientJobsString.substring(1, clientJobsString.length-1).replaceAll("\"", "").split(",");
-        console.log('clientJobs size: ' + clientJobs.length);
-        let jobButtons = document.getElementsByClassName('jobRadioInput');
-        let jobLabel = document.getElementsByClassName('jobLabel');
-        // refresh from the first and delete the others
-        let index = 0;
-        let div = document.getElementById('jobDiv');
-        div.remove();
-        for (let i = 0; i < jobButtons.length; i++) {
-            // jobButtons[i].parentNode.removeChild(jobButtons[i]);
-            // console.log('Index inside for: ' + index);
-            // if (index >= clientJobs.length) {
-            //     console.log('Hiding buttons and labels');
-            //     jobButtons.item(i).value=''
-            //     jobLabel.item(i).value='';
-            //     // jobButtons.item(i).remove();
-            //     // jobLabel.item(i).remove();
-            // } else {
-            //     console.log('Index inside value assign ' + index);
-            //     console.log('Renaming values on buttons and labels');
-            //     jobButtons.item(i).value = clientJobs.at(index);
-            //     jobLabel.item(i).innerHTML = clientJobs.at(index);
-            //     index++;
-            // }
-            // console.log('----------------------------------')
-        }
-    }
+    // function refreshJobLabels(clientName) {
+    //     let clientJobsString = getJobs(clientName);
+    //     console.log(clientName + ' jobs string from our API: ' + clientJobsString);
+    //     let clientJobs = clientJobsString.substring(1, clientJobsString.length-1).replaceAll("\"", "").split(",");
+    //     console.log('clientJobs size: ' + clientJobs.length);
+    //     let jobButtons = document.getElementsByClassName('jobRadioInput');
+    //     let jobLabel = document.getElementsByClassName('jobLabel');
+    //     // refresh from the first and delete the others
+    //     let index = 0;
+    //     let div = document.getElementById('jobDiv');
+    //     div.remove();
+    //     for (let i = 0; i < jobButtons.length; i++) {
+    //         // jobButtons[i].parentNode.removeChild(jobButtons[i]);
+    //         // console.log('Index inside for: ' + index);
+    //         // if (index >= clientJobs.length) {
+    //         //     console.log('Hiding buttons and labels');
+    //         //     jobButtons.item(i).value=''
+    //         //     jobLabel.item(i).value='';
+    //         //     // jobButtons.item(i).remove();
+    //         //     // jobLabel.item(i).remove();
+    //         // } else {
+    //         //     console.log('Index inside value assign ' + index);
+    //         //     console.log('Renaming values on buttons and labels');
+    //         //     jobButtons.item(i).value = clientJobs.at(index);
+    //         //     jobLabel.item(i).innerHTML = clientJobs.at(index);
+    //         //     index++;
+    //         // }
+    //         // console.log('----------------------------------')
+    //     }
+    // }
 
-    getSelectedClient();
+    // getSelectedClient();
 
 <!--    Working v1 -->
     $(function () {

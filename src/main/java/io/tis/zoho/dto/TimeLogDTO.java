@@ -1,8 +1,10 @@
 package io.tis.zoho.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class TimeLogDTO {
     private String clientName;
     private String projectName;

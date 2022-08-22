@@ -48,7 +48,7 @@ public class UserController {
 
     @GetMapping("/add")
     public ModelAndView showStandardForm(Model model) {
-        TimeLogDTO timeLog = new TimeLogDTO();
+        TimeLogDTO timeLog = TimeLogDTO.builder().build();
         model.addAttribute("timelog", timeLog);
         var projectNames = this.userService.getProjects();
         var jobNames = this.userService.getJobs();
@@ -65,7 +65,7 @@ public class UserController {
     public ModelAndView submitForm(@ModelAttribute("log") TimeLogDTO timeLog) {
         String refreshToken = this.userService.getUserRefreshToken();
 //        To be removed
-//        this.zohoService.addNewTimeLog(timeLog, refreshToken);
+        this.zohoService.addNewTimeLog(timeLog, refreshToken);
         System.out.println(timeLog);
         return new ModelAndView("register_success");
     }

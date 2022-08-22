@@ -74,7 +74,7 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.8c57d6a80c62f490b7119e7137f8df37.413edd8453e85b5e0707042b3e245a23";
+        return "1000.524244d2551c16381ca227501343e4a4.8aa3cc857b0aed52a625f9572350d502";
     }
 
     private HttpEntity<?> generateRequestEntity(String accessToken) {
@@ -173,20 +173,40 @@ public class ZohoService {
 
     public void addNewTimeLog(TimeLogDTO timeLogDTO, String userRefreshToken) {
 //        WHen adding job and project with whitespace it adds another one with a %20, correct it TODO
-        String accessToken = this.generateAccessToken(userRefreshToken);
+        var accessToken = this.generateAccessToken(userRefreshToken);
+        var workDates = timeLogDTO.getWorkDate().split(",");
+        if (workDates.length == 1) {
+            this.addSingleTimeLog(timeLogDTO, accessToken);
+        } else {
+            for (int i = 0; i < workDates.length; i++) {
+                var tempTimeLog = TimeLogDTO.builder()
+                        .projectName(timeLogDTO.getProjectName())
+                        .jobName(timeLogDTO.getJobName())
+                        .workDate(workDates[i])
+                        .billable(timeLogDTO.isBillable())
+                        .fromTime(timeLogDTO.getFromTime())
+                        .toTime(timeLogDTO.getToTime())
+                        .workItem(timeLogDTO.getWorkItem())
+                        .description(timeLogDTO.getDescription()).build();
+                this.addSingleTimeLog(tempTimeLog, accessToken);
+            }
+        }
+    }
+
+    private void addSingleTimeLog(TimeLogDTO timeLogDTO, String accessToken) {
         var requestEntity = this.generateRequestEntity(accessToken);
         String requestUrl = generateRequestUrl("/addtimelog");
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl)
-        .queryParam("user", this.userEmail)
-        .queryParam("projectName", timeLogDTO.getProjectName())
-        .queryParam("jobName", timeLogDTO.getJobName())
-        .queryParam("workDate", this.dateTimeConverter.convertDatePickerFormatToStandard(timeLogDTO.getWorkDate()))
-        .queryParam("billingStatus", timeLogDTO.isBillable() ? "billable" : "non-billable")
-        .queryParam("fromTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getFromTime()))
-        .queryParam("toTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getToTime()))
-        .queryParam("workItem", timeLogDTO.getWorkItem())
-        .queryParam("description", timeLogDTO.getDescription());
+                .queryParam("user", this.userEmail)
+                .queryParam("projectName", timeLogDTO.getProjectName())
+                .queryParam("jobName", timeLogDTO.getJobName())
+                .queryParam("workDate", this.dateTimeConverter.convertDatePickerFormatToStandard(timeLogDTO.getWorkDate()))
+                .queryParam("billingStatus", timeLogDTO.isBillable() ? "billable" : "non-billable")
+                .queryParam("fromTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getFromTime()))
+                .queryParam("toTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getToTime()))
+                .queryParam("workItem", timeLogDTO.getWorkItem())
+                .queryParam("description", timeLogDTO.getDescription());
 
         RestTemplate restTemplate = new RestTemplate();
         var statusCode = restTemplate.exchange(
