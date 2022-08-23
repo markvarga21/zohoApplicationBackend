@@ -14,5 +14,5 @@ public class TimeLogDTO {
     private String workDate;
     private String fromTime;
     private String toTime;
-    private boolean billable;
+    private String billable;
 }

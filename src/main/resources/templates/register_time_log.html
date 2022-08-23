@@ -31,7 +31,7 @@
         <br>
 
         <label>Job name:</label>
-        <div class="btn-group" role="group" id="jobDiv">
+        <div class="btn-group" role="group">
             <div th:each="job: ${listJob}">
                 <input type="radio" class="btn-check jobRadioInput" autocomplete="off" th:field="*{jobName}" th:value="${job}">
                 <label class="btn btn-outline-primary jobLabel" th:for="${#ids.prev('jobName')}" th:text="${job}"></label>
@@ -97,18 +97,19 @@
 </div>
 <!-- Script -->
 <script>
-    // function getSelectedClient() {
-    //     let clientButtons = document.getElementsByClassName('clientRadioInput');
-    //     for (let i = 0; i < clientButtons.length; i++) {
-    //         let btn = clientButtons.item(i);
-    //         btn.addEventListener('click', () => {
-    //             if (btn.checked) {
-    //                 refreshJobLabels(btn.value);
-    //             }
-    //         });
-    //     }
-    // }
-    //
+    function getSelectedClient() {
+        let clientButtons = document.getElementsByClassName('clientRadioInput');
+        for (let i = 0; i < clientButtons.length; i++) {
+            let btn = clientButtons.item(i);
+            btn.addEventListener('click', () => {
+                if (btn.checked) {
+                    let clientName = btn.value;
+                    refreshJobLabels(clientName);
+                }
+            });
+        }
+    }
+
     function getJobs(clientName)
     {
         let baseUrl = 'http://localhost:8080/jobs/';
@@ -120,13 +121,22 @@
         return xmlHttp.responseText;
     }
 
+    function refreshJobLabels(clientName) {
+        let jobRadio = document.getElementsByName("jobRadioInput");
+        let jobLabel = document.getElementsByName("jobLabel");
+        let clientButtonIdPrefix = "clientName";
+        for (let i = 0; i < jobLabel.length; i++) {
+            jobRadio[i].value = "HALO";
+        }
+    }
+
     // function refreshJobLabels(clientName) {
     //     let clientJobsString = getJobs(clientName);
     //     console.log(clientName + ' jobs string from our API: ' + clientJobsString);
     //     let clientJobs = clientJobsString.substring(1, clientJobsString.length-1).replaceAll("\"", "").split(",");
     //     console.log('clientJobs size: ' + clientJobs.length);
-    //     let jobButtons = document.getElementsByClassName('jobRadioInput');
-    //     let jobLabel = document.getElementsByClassName('jobLabel');
+    //     // let jobButtons = document.getElementsByClassName('jobRadioInput');
+    //     // let jobLabel = document.getElementsByClassName('jobLabel');
     //     // refresh from the first and delete the others
     //     let index = 0;
     //     let div = document.getElementById('jobDiv');
@@ -151,7 +161,7 @@
     //     }
     // }
 
-    // getSelectedClient();
+    getSelectedClient();
 
 <!--    Working v1 -->
     $(function () {

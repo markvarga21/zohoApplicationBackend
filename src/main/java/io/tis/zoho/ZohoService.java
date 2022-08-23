@@ -74,7 +74,7 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.524244d2551c16381ca227501343e4a4.8aa3cc857b0aed52a625f9572350d502";
+        return "1000.fab078e530789898fff06cc00a3f2f14.48ece7451568ffdb0ad01a9428ec8faa";
     }
 
     private HttpEntity<?> generateRequestEntity(String accessToken) {
@@ -183,7 +183,7 @@ public class ZohoService {
                         .projectName(timeLogDTO.getProjectName())
                         .jobName(timeLogDTO.getJobName())
                         .workDate(workDates[i])
-                        .billable(timeLogDTO.isBillable())
+                        .billable(timeLogDTO.getBillable())
                         .fromTime(timeLogDTO.getFromTime())
                         .toTime(timeLogDTO.getToTime())
                         .workItem(timeLogDTO.getWorkItem())
@@ -202,7 +202,7 @@ public class ZohoService {
                 .queryParam("projectName", timeLogDTO.getProjectName())
                 .queryParam("jobName", timeLogDTO.getJobName())
                 .queryParam("workDate", this.dateTimeConverter.convertDatePickerFormatToStandard(timeLogDTO.getWorkDate()))
-                .queryParam("billingStatus", timeLogDTO.isBillable() ? "billable" : "non-billable")
+                .queryParam("billingStatus", timeLogDTO.getBillable())
                 .queryParam("fromTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getFromTime()))
                 .queryParam("toTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getToTime()))
                 .queryParam("workItem", timeLogDTO.getWorkItem())
