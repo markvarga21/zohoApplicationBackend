@@ -1,11 +1,14 @@
 package io.tis.zoho;
 
+import com.google.gson.Gson;
 import io.tis.exception.ClientNotFoundException;
 import io.tis.exception.JobNotFoundException;
 import io.tis.exception.ProjectNotFoundException;
+import io.tis.user.UserService;
 import io.tis.zoho.client.ZohoClientRepository;
-import io.tis.zoho.client.ZohoClientResponse;
 import io.tis.zoho.client.ZohoClient;
+import io.tis.zoho.client.ZohoClientResponse;
+import io.tis.zoho.converter.ZohoResponseConverter;
 import io.tis.zoho.dto.TimeLogDTO;
 import io.tis.zoho.job.ZohoJob;
 import io.tis.zoho.job.ZohoJobRepository;
@@ -30,16 +33,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Getter
 @Slf4j
 @RequiredArgsConstructor
 public class ZohoService {
+    private final UserService userService;
     private final DateTimeConverter dateTimeConverter;
     private final ZohoClientRepository zohoClientRepository;
     private final ZohoJobRepository zohoJobRepository;
     private final ZohoProjectRepository zohoProjectRepository;
+    private final ZohoResponseConverter responseConverter;
     @Value("${zoho.client.id}")
     private String clientId;
     @Value("${zoho.client.secret}")
@@ -52,6 +58,9 @@ public class ZohoService {
     private String zohoPeopleBaseUrl;
     @Value("${user.email}")
     private String userEmail;
+
+    final static int RESPONSE_BEGIN_CHAR_INDEX = 22;
+    final static int RESPONSE_END_CHAR_INDEX = 87;
 
     public String generateRefreshToken(String code) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -74,7 +83,7 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.7b49ef2959d4e8a855aac8466841fe2d.7ed05e41dfdc27f99643b0cefe4c1ca0";
+        return "1000.bc06d992a2abdf608a77988859ea1335.3b44e661e73f064bd639a644dd770b91";
     }
 
     private HttpEntity<?> generateRequestEntity(String accessToken) {
@@ -87,7 +96,12 @@ public class ZohoService {
         return this.zohoPeopleBaseUrl + path;
     }
 
-    public List<String> getClients() {
+    public List<String> getClientNames() {
+        if (!this.isReadyToPerformOperations()) {
+            String refreshToken = this.userService.getUserRefreshToken();
+            this.gatherZohoInformation(refreshToken);
+        }
+
         var zohoClients = this.zohoClientRepository.findAll();
         if (zohoClients.isEmpty()) {
             String message = "Clients not found!";
@@ -98,7 +112,7 @@ public class ZohoService {
                 .map(ZohoClient::getClientName)
                 .toList();
     }
-    private List<ZohoClient> getAllClientInformation(String accessToken) {
+    private List<ZohoClient> getClientsInformation(String accessToken) {
         var requestEntity = this.generateRequestEntity(accessToken);
         String requestUrl = generateRequestUrl("/getclients");
 
@@ -107,14 +121,18 @@ public class ZohoService {
                 requestUrl,
                 HttpMethod.GET,
                 requestEntity,
-                ZohoClientResponse.class
+                String.class
         );
-        return clients
-                .getBody()
-                .getZohoClientResponseList()
-                .getResult();
+        System.out.println(clients.getBody());
+        return new Gson().fromJson(clients.getBody(), ZohoClientResponse.class).getResponse().getResult();
     }
-    public List<String> getJobs() {
+
+    public List<String> getJobNames() {
+        if (!this.isReadyToPerformOperations()) {
+            String refreshToken = this.userService.getUserRefreshToken();
+            this.gatherZohoInformation(refreshToken);
+        }
+
         var zohoJobs = this.zohoJobRepository.findAll();
         if (zohoJobs.isEmpty()) {
             String message = "No job found!";
@@ -125,7 +143,7 @@ public class ZohoService {
                 .map(ZohoJob::getJobName)
                 .toList();
     }
-    private List<ZohoJob> getAllJobInformation(String accessToken) {
+    private List<ZohoJob> getJobsInformation(String accessToken) {
         String requestUrl = generateRequestUrl("/getjobs");
         var requestEntity = this.generateRequestEntity(accessToken);
 
@@ -134,15 +152,17 @@ public class ZohoService {
                 requestUrl,
                 HttpMethod.GET,
                 requestEntity,
-                ZohoJobResponse.class
+                String.class
         );
-        return jobs
-                .getBody()
-                .getZohoJobResponseList()
-                .getResult();
+        return new Gson().fromJson(jobs.getBody(), ZohoJobResponse.class).getResponse().getResult();
     }
 
-    public List<String> getProjects() {
+    public List<String> getProjectNames() {
+        if (!this.isReadyToPerformOperations()) {
+            String refreshToken = this.userService.getUserRefreshToken();
+            this.gatherZohoInformation(refreshToken);
+        }
+
         var zohoProjects = this.zohoProjectRepository.findAll();
         if (zohoProjects.isEmpty()) {
             String message = "No projects found!";
@@ -153,8 +173,7 @@ public class ZohoService {
                 .map(ZohoProject::getProjectName)
                 .toList();
     }
-
-    private List<ZohoProject> getAllProjectInformation(String accessToken) {
+    private List<ZohoProject> getProjectsInformation(String accessToken) {
         var requestEntity = this.generateRequestEntity(accessToken);
         String requestUrl = generateRequestUrl("/getprojects");
 
@@ -163,12 +182,9 @@ public class ZohoService {
                 requestUrl,
                 HttpMethod.GET,
                 requestEntity,
-                ZohoProjectResponse.class
+                String.class
         );
-        return projects
-                .getBody()
-                .getZohoProjectResponseList()
-                .getResult();
+        return new Gson().fromJson(projects.getBody(), ZohoProjectResponse.class).getResponse().getResult();
     }
 
     public void addNewTimeLog(TimeLogDTO timeLogDTO, String userRefreshToken) {
@@ -231,14 +247,22 @@ public class ZohoService {
                 .toList();
     }
 
-    public boolean isZohoDatabaseSetup() {
-        return !this.zohoClientRepository.findAll().isEmpty();
+    private boolean isReadyToPerformOperations() {
+//        To be removed after deployment
+        this.userService.addDummyUser();
+
+        return !this.userService.getUserRefreshToken().isEmpty()
+                && this.isZohoDatabaseSetup();
+    }
+
+    private boolean isZohoDatabaseSetup() {
+        return !this.zohoJobRepository.findAll().isEmpty();
     }
 
     public void gatherZohoInformation(String refreshToken) {
         String accessToken = this.generateAccessToken(refreshToken);
-        this.zohoClientRepository.saveAll(this.getAllClientInformation(accessToken));
-        this.zohoJobRepository.saveAll(this.getAllJobInformation(accessToken));
-        this.zohoProjectRepository.saveAll(this.getAllProjectInformation(accessToken));
+        this.zohoClientRepository.saveAll(this.getClientsInformation(accessToken));
+        this.zohoJobRepository.saveAll(this.getJobsInformation(accessToken));
+        this.zohoProjectRepository.saveAll(this.getProjectsInformation(accessToken));
     }
 }

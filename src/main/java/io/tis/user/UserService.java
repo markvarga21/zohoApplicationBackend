@@ -13,7 +13,6 @@ import java.util.List;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
-    private final ZohoService zohoService;
 
     public boolean checkUserRefreshToken() {
         return !this.userRepository.findAll().isEmpty();
@@ -27,16 +26,7 @@ public class UserService {
     }
 
     public String getUserRefreshToken() {
-//        return this.userRepository.findAll().get(0).getRefreshToken();
-        return "refreshtoken";
-    }
-
-    public List<String> getProjects() {
-        return this.zohoService.getProjects();
-    }
-
-    public List<String> getJobs() {
-        return this.zohoService.getJobs();
+        return this.userRepository.findAll().get(0).getRefreshToken();
     }
 
     public void addDummyUser() {
@@ -44,22 +34,5 @@ public class UserService {
         user.setEmail("vmark2145@gmail.com");
         user.setRefreshToken("100.blablabla");
         this.userRepository.save(user);
-    }
-
-//    public void addTimeLog(TimeLogDTO timeLog) {
-//        String[] workDates = timeLog.getWorkDate().split(",");
-//        if (workDates.length > 1) {
-//            log.info("More than one time log add");
-//        } else {
-//            log.info("Only one time log to add");
-//        }
-//    }
-
-    public List<String> getClients() {
-        return this.zohoService.getClients();
-    }
-
-    public String getUserEmail() {
-        return this.userRepository.findAll().get(0).getEmail();
     }
 }
