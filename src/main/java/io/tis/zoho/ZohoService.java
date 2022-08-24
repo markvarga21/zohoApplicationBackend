@@ -254,6 +254,19 @@ public class ZohoService {
                 .toList();
     }
 
+    public List<String> getProjectsForClient(String clientName) {
+        var zohoProjectOptional = this.zohoProjectRepository.getZohoProjectsByClientName(clientName);
+        if (zohoProjectOptional.isEmpty()) {
+            String message = String.format("No project(s) found for client: %s", clientName);
+            throw new JobNotFoundException(message);
+        }
+        return zohoProjectOptional
+                .get()
+                .stream()
+                .map(ZohoProject::getProjectName)
+                .toList();
+    }
+
     private boolean isReadyToPerformOperations() {
 //        To be removed after deployment
         this.userService.addDummyUser();

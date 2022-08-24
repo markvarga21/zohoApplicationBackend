@@ -39,13 +39,23 @@ public class UserController {
     }
 
     @GetMapping("/projectlist")
-    public List<String> getProjects() {
-        return this.zohoService.getProjectNames();
+    public List<String> getProjects(@RequestParam(required = false) String clientName) {
+        if (clientName == null || clientName.isEmpty()) {
+            log.error("Client name is empty, returning the full list!");
+            return this.zohoService.getProjectNames();
+        }
+        log.info("Client name is {}, returning data ({}) for him/her!", clientName, this.zohoService.getProjectsForClient(clientName));
+        return this.zohoService.getProjectsForClient(clientName);
     }
 
     @GetMapping("/joblist")
-    public List<String> getJobs() {
-        return this.zohoService.getJobNames();
+    public List<String> getJobs(@RequestParam(required = false) String clientName) {
+        if (clientName == null || clientName.isEmpty()) {
+            log.error("Client name is empty, returning the full list!");
+            return this.zohoService.getJobNames();
+        }
+        log.info("Client name is {}, returning data ({}) for him/her!", clientName, this.zohoService.getJobsForClient(clientName));
+        return this.zohoService.getJobsForClient(clientName);
     }
 
     @PostMapping("/add")
