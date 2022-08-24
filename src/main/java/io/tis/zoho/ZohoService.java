@@ -59,6 +59,10 @@ public class ZohoService {
     @Value("${user.email}")
     private String userEmail;
 
+    // TO be removed
+    @Value("${user.access.token}")
+    private String accessToken;
+
     final static int RESPONSE_BEGIN_CHAR_INDEX = 22;
     final static int RESPONSE_END_CHAR_INDEX = 87;
 
@@ -83,7 +87,8 @@ public class ZohoService {
     }
 
     private String generateAccessToken(String refreshToken) {
-        return "1000.bc06d992a2abdf608a77988859ea1335.3b44e661e73f064bd639a644dd770b91";
+        // TODO
+        return this.accessToken;
     }
 
     private HttpEntity<?> generateRequestEntity(String accessToken) {
@@ -98,9 +103,11 @@ public class ZohoService {
 
     public List<String> getClientNames() {
         if (!this.isReadyToPerformOperations()) {
+            log.info("Initiating database fill..");
             String refreshToken = this.userService.getUserRefreshToken();
             this.gatherZohoInformation(refreshToken);
         }
+        log.info("Databased filled up, starting working!");
 
         var zohoClients = this.zohoClientRepository.findAll();
         if (zohoClients.isEmpty()) {
