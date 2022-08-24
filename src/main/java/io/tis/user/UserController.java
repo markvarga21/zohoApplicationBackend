@@ -63,4 +63,9 @@ public class UserController {
         System.out.println(timeLogDTO);
         return new ResponseEntity<>("Added successfully!", HttpStatus.OK);
     }
+
+    @GetMapping("/dummy")
+    public void getIdForJobName(@RequestParam("projectName") String projectName, @RequestParam("clientName") String clientName) {
+        System.out.println(this.zohoService.getIdForProjectAndClientName(projectName, clientName));
+    }
 }

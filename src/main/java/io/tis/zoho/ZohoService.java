@@ -27,14 +27,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Getter
@@ -285,5 +283,23 @@ public class ZohoService {
         this.zohoClientRepository.saveAll(this.getClientsInformation(accessToken));
         this.zohoJobRepository.saveAll(this.getJobsInformation(accessToken));
         this.zohoProjectRepository.saveAll(this.getProjectsInformation(accessToken));
+    }
+
+    public String getIdForProjectAndClientName(String projectName, String clientName) {
+        var projectIdOptional = this.zohoProjectRepository.getIdForProjectAndClientName(projectName, clientName);
+        if (projectIdOptional.isEmpty()) {
+            String message = String.format("Project ID not found for project name: %s", projectName);
+            throw new ProjectNotFoundException(message);
+        }
+        return projectIdOptional.get();
+    }
+
+    public String getIdForJobAndClientName(String jobName, String clientName) {
+        var jobIdOptional = this.zohoJobRepository.getIdForJobName(jobName, clientName);
+        if (jobIdOptional.isEmpty()) {
+            String message = String.format("Job ID not found for project name: %s", jobName);
+            throw new ProjectNotFoundException(message);
+        }
+        return jobIdOptional.get();
     }
 }
