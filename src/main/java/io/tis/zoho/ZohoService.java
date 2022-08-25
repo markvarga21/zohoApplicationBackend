@@ -129,7 +129,7 @@ public class ZohoService {
                 requestEntity,
                 String.class
         );
-        return new Gson().fromJson(clients.getBody(), ZohoClientResponse.class).getResponse().getResult();
+        return this.responseConverter.convertZohoClientListToEntityList(clients.getBody());
     }
 
     public List<String> getJobNames() {
@@ -159,8 +159,7 @@ public class ZohoService {
                 requestEntity,
                 String.class
         );
-        System.out.println(new Gson().fromJson(jobs.getBody(), ZohoJobResponse.class).getResponse().getResult());
-        return new Gson().fromJson(jobs.getBody(), ZohoJobResponse.class).getResponse().getResult();
+        return this.responseConverter.convertZohoJobListToEntityList(jobs.getBody());
     }
 
     public List<String> getProjectNames() {
@@ -190,11 +189,10 @@ public class ZohoService {
                 requestEntity,
                 String.class
         );
-        return new Gson().fromJson(projects.getBody(), ZohoProjectResponse.class).getResponse().getResult();
+        return this.responseConverter.convertZohoProjectListToEntityList(projects.getBody());
     }
 
     public void addNewTimeLog(TimeLogDTO timeLogDTO, String userRefreshToken) {
-//        WHen adding job and project with whitespace it adds another one with a %20, correct it TODO
         var accessToken = this.generateAccessToken(userRefreshToken);
         var workDates = timeLogDTO.getWorkDate().split(",");
         if (workDates.length == 1) {
