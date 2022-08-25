@@ -60,7 +60,9 @@ public class UserController {
 
     @PostMapping("/add")
     public ResponseEntity<String> addTimeLog(@RequestBody TimeLogDTO timeLogDTO) {
-        System.out.println(timeLogDTO);
+        log.info("Adding time log: {}", timeLogDTO);
+        String refreshToken = this.userService.getUserRefreshToken();
+        this.zohoService.addNewTimeLog(timeLogDTO, refreshToken);
         return new ResponseEntity<>("Added successfully!", HttpStatus.OK);
     }
 

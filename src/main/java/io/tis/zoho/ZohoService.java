@@ -129,7 +129,6 @@ public class ZohoService {
                 requestEntity,
                 String.class
         );
-        System.out.println(clients.getBody());
         return new Gson().fromJson(clients.getBody(), ZohoClientResponse.class).getResponse().getResult();
     }
 
@@ -160,6 +159,7 @@ public class ZohoService {
                 requestEntity,
                 String.class
         );
+        System.out.println(new Gson().fromJson(jobs.getBody(), ZohoJobResponse.class).getResponse().getResult());
         return new Gson().fromJson(jobs.getBody(), ZohoJobResponse.class).getResponse().getResult();
     }
 
@@ -221,12 +221,12 @@ public class ZohoService {
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl)
                 .queryParam("user", this.userEmail)
-                .queryParam("projectName", timeLogDTO.getProjectName())
-                .queryParam("jobName", timeLogDTO.getJobName())
-                .queryParam("workDate", this.dateTimeConverter.convertDatePickerFormatToStandard(timeLogDTO.getWorkDate()))
-                .queryParam("billingStatus", timeLogDTO.getBillable())
-                .queryParam("fromTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getFromTime()))
-                .queryParam("toTime", this.dateTimeConverter.convertTimePickerFormatToStandard(timeLogDTO.getToTime()))
+                .queryParam("projectId", this.getIdForProjectAndClientName(timeLogDTO.getProjectName(), timeLogDTO.getClientName()))
+                .queryParam("jobId", this.getIdForJobAndClientName(timeLogDTO.getJobName(), timeLogDTO.getClientName()))
+                .queryParam("workDate", timeLogDTO.getWorkDate())
+                .queryParam("billingStatus", timeLogDTO.getBillable().replace(" ", ""))
+                .queryParam("fromTime", timeLogDTO.getFromTime().replace(" ", ""))
+                .queryParam("toTime", timeLogDTO.getToTime().replace(" ", ""))
                 .queryParam("workItem", timeLogDTO.getWorkItem())
                 .queryParam("description", timeLogDTO.getDescription());
 
