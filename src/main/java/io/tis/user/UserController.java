@@ -60,7 +60,14 @@ public class UserController {
 
     @PostMapping("/add")
     public ResponseEntity<String> addTimeLog(@RequestBody TimeLogDTO timeLogDTO) {
-        System.out.println(timeLogDTO);
+        log.info("Adding time log: {}", timeLogDTO);
+        String refreshToken = this.userService.getUserRefreshToken();
+        this.zohoService.addNewTimeLog(timeLogDTO, refreshToken);
         return new ResponseEntity<>("Added successfully!", HttpStatus.OK);
+    }
+
+    @GetMapping("/dummy")
+    public void getIdForJobName(@RequestParam("projectName") String projectName, @RequestParam("clientName") String clientName) {
+        System.out.println(this.zohoService.getIdForProjectAndClientName(projectName, clientName));
     }
 }
