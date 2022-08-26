@@ -1,7 +1,6 @@
 package io.tis.zoho.converter;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.tis.zoho.client.ZohoClient;
 import io.tis.zoho.client.ZohoClientResponse;
 import io.tis.zoho.job.ZohoJob;
@@ -11,7 +10,6 @@ import io.tis.zoho.project.ZohoProjectResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Component
